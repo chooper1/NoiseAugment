@@ -1,5 +1,5 @@
 function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name_conv, index, amp, other_noise, goal_freq, source_pos, noise_pos)
- 	in_filename = strcat(in_path, input);
+    in_filename = strcat(in_path, input);
     [s1_, FS]=audioread(in_filename);
             
     %convert frequency https://www.mathworks.com/help/signal/ug/changing-signal-sample-rate.html
