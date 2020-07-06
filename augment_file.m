@@ -12,7 +12,9 @@ function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name
     
     avg_amp_speaker = sqrt(mean((s1.^2)));
     
+    
     %add white/pink/brownian noise
+    addpath('NoiseTypes/');
     if other_noise(1) == 1 %white noise
         awg = awgn(s1, other_noise(2), 'measured');
     end
