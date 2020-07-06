@@ -6,7 +6,7 @@ function rewrite_config(micpos, room_dims)
 %cd path_;
 addpath('Roomsimove/');
 % edit Roomsimove/room_sensor_config_cellphone_MJ.txt
-fileID = fopen('room_sensor_config_cellphone_MJ.txt','w');
+fileID = fopen('Logging/room_sensor_config_cellphone_MJ.txt','w');
 fid = fopen('Roomsimove/room_sensor_config_cellphone_MJ.txt');
 tline = fgetl(fid);
 i = 1;

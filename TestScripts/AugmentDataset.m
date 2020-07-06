@@ -16,6 +16,7 @@ function AugmentDataset(paths, positions, noise_settings, other_noise, goal_freq
             
     %configure microphones here!
     addpath('Roomsimove/');
+    addpath('Logging/');
     % edit Roomsimove/room_sensor_config_cellphone_MJ.txt
     rewrite_config(mic_pos, room_dims);
     write_info(output_path, dataset_path, noise_paths, noise_prob, amp, source_pos, noise_pos, mic_pos, room_dims);
