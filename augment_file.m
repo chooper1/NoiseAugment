@@ -1,8 +1,11 @@
+%augment a single .wav file with noisy data
 function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name_conv, index, amp, other_noise, goal_freq, source_pos, noise_pos)
+    %open desired speech file
     in_filename = strcat(in_path, input);
     [s1_, FS]=audioread(in_filename);
             
-    %convert frequency https://www.mathworks.com/help/signal/ug/changing-signal-sample-rate.html
+    %convert frequency if necessary
+    %(https://www.mathworks.com/help/signal/ug/changing-signal-sample-rate.html)
     if FS ~= goal_freq
         [P,Q] = rat(goal_freq/FS);
         s1 = resample(s1_,P,Q);
@@ -10,8 +13,8 @@ function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name
         s1 = s1_;
     end
     
+    %get the average amplitude of the input speech 
     avg_amp_speaker = sqrt(mean((s1.^2)));
-    
     
     %add white/pink/brownian noise
     addpath('NoiseTypes/');
@@ -48,19 +51,24 @@ function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name
     for i=1:size(H1,2)
         s1_delay(:,i) = conv(H1(:,i),s1)/8;
     end
+    %average amplitude of s1_delay
     avg_amp_in = sqrt(mean(mean((s1_delay.^2),2)));
-    %s1_delay = s1_delay * (avg_amp_speaker / avg_amp_in);
     
     if size(noise,1) ~= 0
         for i=1:length(noise)
         	minLength=length(s1);
             clear s2 s2_;
+            
+            %open noise file
             [s2_, fs] = audioread(noise(i)); 
             
+            % average if noise has multiple channels
             if size(s2_,2) > 1
                 s2_ = sum(s2_,2) / size(s2_, 2);
             end
             
+            %convert frequency if necessary
+            %(https://www.mathworks.com/help/signal/ug/changing-signal-sample-rate.html)
             if fs ~= goal_freq
             	[P,Q] = rat(goal_freq/fs);
                 s2 = resample(s2_,P,Q);
@@ -73,6 +81,9 @@ function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name
             % to added zeros
             avg_amp_noise = sqrt(mean((s2.^2)));
             
+            % adjust the noise file according to the length of the input
+            % speech file, and randomly place it within the input clip if
+            % the input clip is longer
             if length(s2) > minLength
             	start_ind = randi([1 length(s2)-minLength]);
                 s2 = s2(start_ind:minLength+start_ind-1);
@@ -82,6 +93,7 @@ function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name
                 s2(1:rand_ind-1) = 0;
                 s2(end+1:minLength) = 0;
             end
+            
             % convolution
             if avg_amp_noise == 0
                 for j=1:size(H1,2)
@@ -92,29 +104,28 @@ function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name
                     s2_delay{j}(:,i) = conv(H2{noise_index(i)}(:,j),s2)/8;
                     check_zeros(:,j) = s2_delay{j}(:,i) ~= 0; 
                 end
+                %use this to correctly scale the amplitude of the noise
                 check_zero = sum(check_zeros, 2);
                 check = find(check_zero ~= 0);
-                %get amp
+                %get amplitude of the noise file channels
                 avg_amp_noise_channels = 0;
                 for j=1:size(H1,2)
                      avg_amp_noise_channels = avg_amp_noise_channels + mean((s2_delay{j}(check(:),i).^2));
                 end
                 avg_amp_noise_channels = sqrt(avg_amp_noise_channels/size(H1,2));
-                %scale
+                
+                %scale the noise files by the desired amplitude scaling
+                %factor (normalized to the amplitude of the input file)
                 for j=1:size(H1,2)
-                    s2_delay{j}(:,i) = s2_delay{j}(:,i) * amp(noise_index(i)) * (avg_amp_in/avg_amp_noise_channels); %replace avg_amp_noise w/ avg_amp_noise_channels
+                    s2_delay{j}(:,i) = s2_delay{j}(:,i) * amp(noise_index(i)) * (avg_amp_in/avg_amp_noise_channels); 
                 end
-                %ampl_ = sqrt((mean((s2_delay{1}(check(:),i).^2)) + mean((s2_delay{2}(check(:),i).^2)))/2)
-                %ampl_ = sqrt((mean((s2_delay{1}(:,i).^2)) + mean((s2_delay{2}(:,i).^2)))/2)
             end
         end
+        %combine noise files
         for j=1:size(H1,2)
             s2_combined{j} = (sum(s2_delay{j},2));
         end
-        %ampl_1 = sqrt((mean((s2_delay{1}(:,1).^2)) + mean((s2_delay{2}(:,1).^2)))/2)
-        %ampl_2 = sqrt((mean((s2_delay{1}(:,2).^2)) + mean((s2_delay{2}(:,2).^2)))/2)
-        %avg_amp_ = sqrt((mean((s1_delay(:,1).^2)) + mean((s1_delay(:,2).^2)))/2)
-        
+        %combine noise and input speech
         for j=1:size(H1,2)
         	x(:,j) = s1_delay(:,j)+s2_combined{j};
         end
@@ -123,12 +134,11 @@ function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name
             x(:,j) = s1_delay(:,j);
         end
     end
-    %avg amp
+    %scale the final output file to have the same amplitude as the input file
     avg_amp_out = sqrt(mean(mean((x.^2),2)));
     x = x * (avg_amp_speaker / avg_amp_out); 
+    
     %write combined output file
-    %note that the replace functions will need to be changed depending on
-    %format of input file name
     s = strcat(out_path, name_conv, int2str(index), '.wav');
     audiowrite(s, x, FS);
     
