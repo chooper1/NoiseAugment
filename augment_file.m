@@ -1,5 +1,5 @@
 %augment a single .wav file with noisy data
-function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name_conv, index, amp, other_noise, goal_freq, source_pos, noise_pos)
+function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name_conv, name_same, index, amp, other_noise, goal_freq, source_pos, noise_pos)
     %open desired speech file
     in_filename = strcat(in_path, input);
     [s1_, FS]=audioread(in_filename);
@@ -139,11 +139,19 @@ function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name
     x = x * (avg_amp_speaker / avg_amp_out); 
     
     %write combined output file
-    s = strcat(out_path, name_conv, int2str(index), '.wav');
+    if name_same == 1
+        s = strcat(out_path, input);
+    else
+        s = strcat(out_path, name_conv, int2str(index), '.wav');
+    end
     audiowrite(s, x, FS);
     
     % Write info to a CSV file
-    s = strcat(name_conv, int2str(index), '.wav');
+    if name_same == 1
+        s = input;
+    else
+        s = strcat(name_conv, int2str(index), '.wav');
+    end
     C =  {s, in_filename, source_pos(1), source_pos(2), source_pos(3)};
     noise_count = 1;
     for i=1:max(noise_index)
