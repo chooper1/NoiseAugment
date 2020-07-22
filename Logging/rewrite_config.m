@@ -1,9 +1,9 @@
 % update the roomsimove config file
-function rewrite_config(micpos, room_dims)
+function rewrite_config(micpos, room_dims, output_path)
     addpath('Roomsimove/');
     addpath('Logging/');
     % edit Logging/room_sensor_config_cellphone_MJ.txt
-    fileID = fopen('Logging/room_sensor_config_cellphone_MJ.txt','w');
+    fileID = fopen(strcat(output_path,'room_sensor_config_cellphone_MJ.txt'),'w');
     fid = fopen('Roomsimove/room_sensor_config_cellphone_MJ.txt');
     tline = fgetl(fid);
     i = 1;

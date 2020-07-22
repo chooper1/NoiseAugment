@@ -17,7 +17,8 @@ function AugmentDataset(paths, positions, noise_settings, other_noise, goal_freq
     addpath('Roomsimove/');
     addpath('Logging/');
     % edit Roomsimove/room_sensor_config_cellphone_MJ.txt
-    rewrite_config(mic_pos, room_dims);
+    rewrite_config(mic_pos, room_dims, output_path);
+    config_path = strcat(output_path,'room_sensor_config_cellphone_MJ.txt');
     write_info(output_path, dataset_path, noise_paths, noise_prob, amp, source_pos, noise_pos, mic_pos, room_dims);
     C =  {"Output File","Input File", "x", "y", "z"};
     for i=1:length(noise_paths)
@@ -26,11 +27,11 @@ function AugmentDataset(paths, positions, noise_settings, other_noise, goal_freq
         C{(i)*4+4} = "y";
         C{(i)*4+5} = "z";
     end
-    s = strcat(output_path,'log.xls');
+    s = strcat(output_path,'log.csv');
     writecell(C,s);
             
     if length(source_pos) == 3
-        H1 = roomsimove_single('room_sensor_config_cellphone_MJ.txt', source_pos);
+        H1 = roomsimove_single(config_path, source_pos);
         source_pos_temp = source_pos;
     end
             
@@ -42,7 +43,7 @@ function AugmentDataset(paths, positions, noise_settings, other_noise, goal_freq
                     dir(fullfile(noise_paths(i),'*.mp3')), dir(fullfile(noise_paths(i),'*.mp4'))]; %gets all wav files in directory
         
         if length(noise_pos{i}) == 3
-        	H2{i} = roomsimove_single('room_sensor_config_cellphone_MJ.txt', noise_pos{i});
+        	H2{i} = roomsimove_single(config_path, noise_pos{i}); %'room_sensor_config_cellphone_MJ.txt'
             noise_pos_temp{i} = noise_pos{i};
         elseif length(noise_pos{i}) == 6
             H2{i} = [];
@@ -91,7 +92,7 @@ function AugmentDataset(paths, positions, noise_settings, other_noise, goal_freq
             else
                 z = unifrnd(source_pos(3), source_pos(6));
             end
-            H1 = roomsimove_single('room_sensor_config_cellphone_MJ.txt', [x; y; z;]);
+            H1 = roomsimove_single(config_path, [x; y; z;]);
             source_pos_temp = [x; y; z;];
         end
         
@@ -123,7 +124,7 @@ function AugmentDataset(paths, positions, noise_settings, other_noise, goal_freq
                     else
                         z = unifrnd(noise_pos{i}(3), noise_pos{i}(6));
                     end
-                    H2{i} = roomsimove_single('room_sensor_config_cellphone_MJ.txt', [x; y; z;]);
+                    H2{i} = roomsimove_single(config_path, [x; y; z;]);
                     noise_pos_temp{i} = [x; y; z;];
                 end
                 noise_count = noise_count + 1;

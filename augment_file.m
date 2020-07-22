@@ -116,8 +116,16 @@ function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name
                 
                 %scale the noise files by the desired amplitude scaling
                 %factor (normalized to the amplitude of the input file)
+                if size(amp,1) == 2 %if random amplitude
+                    amp_temp = unifrnd(amp(1,noise_index(i)), amp(2,noise_index(i)));
+                else
+                    amp_temp = amp(noise_index(i));
+                end
+                
+                %scale the noise files by the desired amplitude scaling
+                %factor (normalized to the amplitude of the input file)
                 for j=1:size(H1,2)
-                    s2_delay{j}(:,i) = s2_delay{j}(:,i) * amp(noise_index(i)) * (avg_amp_in/avg_amp_noise_channels); 
+                    s2_delay{j}(:,i) = s2_delay{j}(:,i) * amp_temp * (avg_amp_in/avg_amp_noise_channels); 
                 end
             end
         end
@@ -169,5 +177,5 @@ function augment_file(input, noise, H1, H2, noise_index, in_path, out_path, name
             noise_count = noise_count + 1;
         end
     end
-    writecell(C,strcat(out_path,'log.xls'),'WriteMode','append')
+    writecell(C,strcat(out_path,'log.csv'),'WriteMode','append')
 end
