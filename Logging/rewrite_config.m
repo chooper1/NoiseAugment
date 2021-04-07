@@ -3,15 +3,16 @@ function rewrite_config(micpos, room_dims, output_path)
     addpath('Roomsimove/');
     addpath('Logging/');
     % edit Logging/room_sensor_config_cellphone_MJ.txt
-    fileID = fopen(strcat(output_path,'room_sensor_config_cellphone_MJ.txt'),'w');
-    fid = fopen('Roomsimove/room_sensor_config_cellphone_MJ.txt');
+    %fileID = fopen(strcat(output_path,'room_config.txt'),'w');
+    fileID = fopen('Logging/room_config.txt','w');
+    fid = fopen('Roomsimove/room_config.txt');
     tline = fgetl(fid);
     i = 1;
-    %loop over lines in Roomsimove/room_sensor_config_cellphone_MJ.txt and
-    %update lines in Logging/room_sensor_config_cellphone_MJ.txt based on
+    %loop over lines in Roomsimove/room_config.txt and
+    %update lines in Logging/room_config.txt based on
     %the input parameters
     while ischar(tline)
-        if i == 6  
+        if i == 6
             %write room dimensions to output file
             fprintf(fileID, 'room_size  %f  %f  %f' , room_dims(1), room_dims(2), room_dims(3));
             fprintf(fileID, '\n');

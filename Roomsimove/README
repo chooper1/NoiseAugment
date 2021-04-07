@@ -2,10 +2,10 @@ SIMULATION OF MOVING SOURCES
 
 This software is designed to simulate the recording of a moving source by one or more microphones in a reverberant room. To compute the signal x recorded at the microphones defined in room_sensor_config.txt when a source emits the signal s sampled at fs Hz while moving along the piecewise linear path defined in source_config.txt, type
 
-[time,HH]=roomsimmove('room_sensor_config.txt','source_config.txt',fs);
+[time,HH]=roomsimmove('room_config.txt','source_config.txt',fs);
 x=roomsimove_apply(time,HH,s,fs);
 
-Examples of room/microphone configurations and source paths are given in room_sensor_config.txt and source_config.txt respectively.
+Examples of room/microphone configurations and source paths are given in room_config.txt and source_config.txt respectively.
 
 Moving room impulse responses are obtained by linear interpolation of static room impulse reponses computed at discrete points over the path. A theoretical justification of this approach along with some error bounds is given in roomsimove.m.
 
@@ -32,7 +32,6 @@ dist_F=1 (distance attenuation)
 Fc_HP=20 (high-pass filter above 20Hz)
 smooth_F=1 (fractional delay filters)
 alpha_F=1 (surface opacity = reflectivity)
-
 
 LICENSE
 
